@@ -1,0 +1,134 @@
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.Scanner;
+
+public class SpellingBee {
+    private String puzzle;
+
+    private ArrayList<String> answers = new ArrayList<>();
+
+    public void promptForPuzzle(){
+
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("puzzle? ");
+        puzzle = sc.nextLine();
+    }
+// This checks if the puzzle is valid or not.
+    private boolean isValidPuzzle(String possiblePuzzle){
+        // Must be 7 char
+        if (possiblePuzzle.length() != 7){
+            return false;
+        }
+        // Must be lowercase
+        for (int i = 0; i < possiblePuzzle.length(); i++){
+            if (possiblePuzzle.charAt(i) < 'a' || possiblePuzzle.charAt(i) > 'z'){
+                return false;
+            }
+        }
+        // No letter may appear more than once in the puzzle.
+        for (int i = 0; i < possiblePuzzle.length(); i++){
+            char c = possiblePuzzle.charAt(i);
+            for (int j = i+1; j < possiblePuzzle.length();j++) {
+                if (c==possiblePuzzle.charAt(j)){
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+// This method search for the answer in the dictionary.
+    public void searchForAnswers(){
+        File file = new File("EnglishWords.txt");
+        Scanner sc = null;
+        try {
+             sc = new Scanner(file);
+        } catch (FileNotFoundException e) {
+            System.out.println("Invalid input file");
+            System.exit(0);
+        }
+
+        while (sc.hasNextLine()){
+            String word = sc.nextLine();
+
+            // Make sure the word is least 4 characters
+            if ( word.length() >= 4){
+                boolean isValid = false;
+                //Legal english word
+                for (int i=0; i < word.length();i++) {
+                    if (puzzle.charAt(0) == word.charAt(i)) {
+                        isValid = true;
+                    }
+                }
+
+                // Check to see if 7 letters in the beehive
+                boolean isValid2 = true;
+                for (int i = 0; i < word.length(); i++){
+                    if (!puzzle.contains(word.charAt(i) + "")) {
+                        isValid2 = false;
+                    }
+                }
+
+                if (isValid == true && isValid2 == true){
+                    answers.add(word);
+                }
+            }
+
+        }
+    }
+
+// Check to see if the word is pangram or now.
+    private boolean isPangram(String word){
+
+        for (int i = 0; i < puzzle.length(); i++){
+            if (word.indexOf(puzzle.charAt(i)) == -1){
+                return false;
+            }
+        }
+        return true;
+
+    }
+
+    // Prints answers vertically
+    public void displayAnswers(){
+
+        int maxScore = 0;
+
+        System.out.println(answers.size() + " " + "Words:");
+
+        // 4 letters (score = 1) > 4 letters (score = length) // pangram (score = length + 7)
+        // pangram word*
+        for (int i = 0; i < answers.size(); i++){
+            if  (answers.get(i).length() == 4 ){
+                System.out.println("1 - " + answers.get(i) );
+                maxScore += 1;
+            }
+            if  ((answers.get(i)).length() > 4 ) {
+                if (isPangram((answers.get(i))) == true) {
+                    System.out.println(((answers.get(i)).length() + 7) + " - " + answers.get(i) + " *");
+                    maxScore += ((answers.get(i)).length()) + 7;
+                } else {
+                    System.out.println(answers.get(i).length() + " - " + answers.get(i));
+                    maxScore += ((answers.get(i)).length());
+                }
+            }
+        }
+    // Display the max score
+        System.out.println("Max Score: " + maxScore);
+    }
+
+
+// Display the string in a beehive
+    public String toString(){
+        String hive = "     "+puzzle.charAt(3)+"     " + "\n"
+                  + puzzle.charAt(1)+"         "+puzzle.charAt(2) + "\n"
+                  + "     "+puzzle.charAt(0)+"     "+ "\n"
+                  + puzzle.charAt(4)+"         "+puzzle.charAt(5)+ "\n"
+                  + "     "+puzzle.charAt(6)+"     ";
+        return hive;
+    }
+
+}
